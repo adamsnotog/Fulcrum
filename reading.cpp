@@ -1,12 +1,13 @@
 //EXE2ELF
 //PARSING
 //Reading.cpp
-//Proto
+//Prototype
 //All credits and rights to Adams @adamsplus1945 
 //GPLv3
-//Code high sensitivity to Original program alignment and EXE structure standards
+//Code has high sensitivity to Original Program alignment and EXE structure standards
 //Doesn't support Arm Rom Big endian
-/*Nicknames archi architecture nos number of sections sofoh size of optional header sofid size of initialized data sofuid size of uninitialized data 
+/*Nicknames
+ archi architecture nos number of sections sofoh size of optional header sofid size of initialized data sofuid size of uninitialized data 
 aep address of entry point bofc base of code bofd base of data
 ib image base sa section alignment fa file alignment mjosv major OS version mnosv minor OS version mjiver major image version mniver minor image version mjsubver major Sub version mnsubver minor Sub version sofoh size of optional header
 sofsr size of stack reserve nofras number of RVA and sizes expt export table impt import table rest resource table exct exception table sert security table
@@ -80,14 +81,19 @@ vector<unsigned char> lib_name;
 //vector <unsigned char> lib
 ///////////////////
 //RVA FUNCTION 
-long long rva_offest(long long rva,int* sectable){
+uint64_t rva_offset(uint64_t rva,int* sectable){
 int index2=0;
 while(index2<960){
 if(rva<*(sectable+(index2+3))||rva>*(sectable+(index2+3))+*((sectable+(index2+2)))){
 index2+=10;
 }
 else{
+if(*(sectable+index2+2)==0){
+return 0;
+}
+else{
 return rva-*(sectable+index2+3)+*(sectable+index2+5);
+}
 }
 };
 return 0;
@@ -96,11 +102,11 @@ return 0;
 
 int impt_libraries_num;
 vector<int> original_first_thunk;
-
+vector<int> impt_iat;
 int rtr;
 int reading(){
 	
-//Block for initializing arrays using for import table and big endiana check
+//Block for initializing arrays using for import table and big endian check
 uint16_t lb=0x1234;
 char* lbptr=(char*)&lb;
 if(*lbptr==0x12){
@@ -110,7 +116,7 @@ return 4;
 //Block for file name and content check
 cin>>name;
 name_store=name;
-if(name.size()<=4){cout<<"\nunable to open file";
+if(name.size()<4){cout<<"\nunable to open file";
 return 2;
 }
 name.erase(0,name.size()-4);
@@ -126,7 +132,7 @@ return 5;
 //Block for Buffers and MZ checking
 file.seekg(0,ios::beg);
 file.read((char*)&mistake[0],2);
-if(*(char*)&mistake[0]=='M'&&*(char*)&mistake[1]=='Z'){cout<<"\nThis file has not an exe extension but it might be an exe file want continue?\n";}
+if(*(char*)&mistake[0]=='M'&&*(char*)&mistake[1]=='Z'){cout<<"\nThis file's' extension is not exe , but it might be an exe file \nwant continue (Y/N)?\n";}
 else{cout<<"\nunable to convert";
 return 5;
 }
@@ -166,8 +172,8 @@ cout<<"\nunable to convert";
 return 6;
 }
 
-if(*(unsigned int*)&buffer[60]>file_size||*(unsigned int*)buffer[60]<65){
-cout<<"\nnable to convert";
+if(*(unsigned int*)&buffer[60]>file_size||*(unsigned int*)&buffer[60]<65){
+cout<<"\nunable to convert";
 return 8+5;
 }
 
@@ -179,7 +185,7 @@ if(buffer[0]!='P'||buffer[1]!='E'||buffer[2]!='\0'||buffer[3]!='\0'){
 cout<<"\nunable to convert";
 return 6;
 }
-//6 BYTES IMAGE_FILE_READER / FILE HEADER
+//6 BYTES IMAGE_FILE_HEADER / FILE HEADER
 file.read((char*)buffer,512);
 archi=*(unsigned short*)&buffer[0];
 nos=*(unsigned short*)&buffer[2];
@@ -335,7 +341,7 @@ memcpy(sections_table,buffer4096,nos*40);
 file.seekg(-(4096-(nos*40)),ios::cur);
 
 //IMPORT TABLE/DIRECTORY 
-file.seekg(rva_offest(data_directory[2],(int*)sections_table),ios::beg);
+file.seekg(rva_offset(data_directory[2],(int*)sections_table),ios::beg);
 unsigned char buffer_impt[20];
 int index1=0;
 int index2=0;
@@ -358,9 +364,9 @@ index2=0;
 };
 impt_libraries_num=index1;
 
-//SIGNING THUNKS 		
+//READING/FILLING THUNKS 		
 impt_fields.resize(impt_libraries_num*20);
-file.seekg(rva_offest(data_directory[2],(int*)sections_table),ios::beg);
+file.seekg(rva_offset(data_directory[2],(int*)sections_table),ios::beg);
 index1=0;
 index2=0;
 file.read((char*)&impt_fields[0],20*impt_libraries_num);
@@ -372,6 +378,34 @@ memcpy(&original_first_thunk[index1],&impt_fields[index2],4);
 index1++;
 index2+=5;
 }
+
+
+//LIBRARIES NAME
+index1=0;index2=0;
+lib_name.resize(impt_libraries_num);
+while(index1<impt_libraries_num){
+memcpy(&lib_name[index1],&impt_fields[index2+3],4);
+index1++;
+index2+=5;
+}
+
+
+//IAT
+index1=0;index2=0;
+impt_iat.resize(impt_libraries_num);
+while(index1<impt_libraries_num){
+memcpy(&lib_name[index1],&impt_fields[index2+4],4);
+index1++;
+index2+=5;
+}
+
+
+
+
+
+
+
+
 
 
 
