@@ -1,11 +1,5 @@
 //EXE2ELF
-//PARSING
-//Reading.h
-//prototype
-//© (Repository creation date) 2025 All credits and rights to Adams @adamsplus1945
-//GPLv3
-//Code highly sensitive to Original Program alignment and EXE structure standards
-//Doesn't support Arm(Bus Error) Rom Big endian
+//READING.h
 /*Nicknames
  archi architecture nos number of sections sofoh size of optional header sofid size of initialized data sofuid size of uninitialized data 
 aep address of entry point bofc base of code bofd base of data
@@ -402,8 +396,10 @@ flag1=true;
 
 
 }
-//Why not using windows.h structures? because the code meant to work on linux
-//Why not using full name of enums instead of stall numbers? because the code built within weeks and not full time work
-//Most important Why code not perfect? because it built on android and free compiler 
 
+//Coded on cxxdroid
 /***Still in development***/
+
+
+
+//CREDITS TO ORIGINAL DEVELOPER ADAMS @Adamsplus1945
