@@ -1,23 +1,14 @@
 //EXE2ELF
+//Prototype
+//© (Repository(https://github.com/adamsnotog/EXE2ELF) creation date) 2025 All credits and rights to Adams @adamsplus1945
+//GPLv3
+//Code highly sensitive to Original Program alignment and EXE structure standards
+//Doesn't support Arm(Bus Error) Rom Big endian
 #include"Reading.h"
 #include "Name_insertion.h"
 #include "elf.h"
 int main(){
-char buffer[PATH_MAX];
-    ssize_t length = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-    
-    if (length != -1) {
-        buffer[length] = '\0';
-        string fullPath(buffer);
-
-        size_t lastSlashPos = fullPath.find_last_of("/");
-        string directoryPath = fullPath.substr(0, lastSlashPos);
-
-        string logoPath = directoryPath + "/logo/logo.png";
-
-    }
-	
-
+cout<<BLUE<<"Enter path of exe file: ";
 char a=name_insert();
 if(a==0){
 reading();
