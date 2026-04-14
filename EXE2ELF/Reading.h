@@ -147,7 +147,7 @@ return 6;
 }
 
 if(*(unsigned int*)&buffer[60]>file_size||*(unsigned int*)&buffer[60]<65){
-cout<<YELLOW<<"\nunable to convert\n"<<RED<<"FILE IS \nSUPER SUSPICIOUS (MALWARE E_LFANEW) ! "<<(int)buffer[60];
+cout<<YELLOW<<"\nunable to convert\n"<<RED<<"FILE IS \nSUPER SUSPICIOUS (MALWARE E_LFANEW) ! ";
 return 8+5;
 }
 
@@ -383,23 +383,12 @@ index2+=5;
 file.close();
 
 
-struct termios tty;
-tcgetattr(STDIN_FILENO, &tty);
-tty.c_lflag&= ~ECHO;
-tty.c_lflag &= ~ICANON;
-cout<<"\033[?25l";
-tcsetattr(STDIN_FILENO, TCSANOW, &tty); 
-cout<<BLUE<<"\n\nProcess Has Done Successfully."<<RESET;
-
-flag1=true;
-;
-
+return 0;
 
 }
 
-//Coded on cxxdroid
 /***Still in development***/
 
 
 
-//CREDITS TO ORIGINAL DEVELOPER ADAMS @Adamsplus1945
+//CREDITS TO ORIGINAL DEVELOPER ADAMS  Adamsplus1945@gmail.com
