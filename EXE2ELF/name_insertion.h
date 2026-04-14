@@ -27,9 +27,9 @@ name_store2=name_store+".exe";
 }
 vector<char> mistake(2);
 if(1){
-ifstream file(name_store,ios::beg);
+ifstream file(name_store,ios::binary);
 if(file.is_open()==0){
-ifstream file1(name_store2,ios::beg);
+ifstream file1(name_store2,ios::binary);
 if(file1.is_open()==0){
 cout<<RED<<"\nunable to convert\n"<<YELLOW<<"an error occurred (unknown error can't open file/file not found) "<<RESET;	
 return 6;
@@ -44,7 +44,7 @@ ifstream file(name_store2,ios::binary);
 file.seekg(0,ios::beg);
 file.read((char*)&mistake[0],2);
 if(mistake[0]=='M'&&mistake[1]=='Z'){
-cout<<GREEN<<*(char*)&mistake[0]<<*(char*)&mistake[1]<<GREEN<<" <-An EXE Program";
+cout<<BLUE<<*(char*)&mistake[0]<<*(char*)&mistake[1]<<GREEN<<" <-An EXE Program";
 cout<<GREEN<<"\nThis file's extension is not exe , but it might be an exe file \nwant continue "<<BLUE<<"("<<BLUE<<"Y"<<BLUE<<"/"<<BLUE<<"N"<<BLUE<<")\n"<<RESET;
 }
 else{
@@ -102,3 +102,9 @@ goto a10;
 
 return 0;
 }
+
+
+
+
+
+//CREDITS TO ORIGINAL DEVELOPER ADAMS @Adamsplus1945
