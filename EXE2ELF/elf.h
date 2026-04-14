@@ -3,18 +3,132 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <termios.h>
+#include <unistd.h>
+#include <algorithm>
 using namespace std;
-int elf_writing(){
 extern string name;
 extern string name_store;
 extern string name_store2;
 extern long long file_size;
+extern unsigned short nos;
 extern unsigned char sections_table[];
 extern unsigned short prog_ver;
+extern unsigned short archi;
 extern int aep;
+extern uint64_t rva_offset(uint64_t rva,int* sectable);
+extern bool flag1;
+extern const string RED;
+extern const string BLUE;
+extern const string RESET;
 extern uint64_t ib;
 extern char no_ext;
-ifstream file(name_store2,ios::binary);
+//fstream file;
+//ofstream elf;
+char flag2=0;
+int index33;
+/*
+This function isn't needed anymore but decided to left it
+int get_power(int val,bool give_power,int* dest_val){
+if(val>0&&dest_val!=nullptr){
+int temp_ind=0;
+while(val>=10){
+val/=10;
+temp_ind++;
+}
+if(give_power==false){
+return temp_ind;
+}
+else{
+while(temp_ind>0){
+*dest_val*=10;
+temp_ind--;
+}
+}
+}
+else{
+return -1;
+}
+}
+*/
+
+////////////////////////////////////////////////////////////////////////
+int text_sec(){
+	
+index33=0;
+char possibility=0;
+char no_doubt=0;
+while(possibility<=70&&index33<nos*40){
+if(possibility==10){
+possibility=0;
+}
+if((*(int*)&sections_table[index33]==*(int*)".tex"&&sections_table[(index33+5)]=='t')||*(int*)&sections_table[index33]==*(int*)"text"){
+possibility+=10;
+}
+if(*(int*)&sections_table[index33+36]==0x60000020){
+possibility+=30;	
+}
+if(aep>=*(int*)&sections_table[index33+12]&&aep<=*(int*)&sections_table[index33+8]){
+possibility+=70; 
+no_doubt++;
+return 0;
+}
+index33+=40;
+}
+
+
+
+char no_text=0;
+if(possibility>=30){
+return 0;
+}
+else{
+return 1;	
+}
+
+}
+
+
+///////////////////////////////////////////////////////////////////////
+
+//The logic is to get the file position to put sections
+int sections_placement(ofstream *file,unsigned char* sects_data ,int sizeof_sec,int position,unsigned char* sectable,char whichsec){
+int index66=0;
+unsigned int sects_rvas[nos];
+//Initializing Sections VAs
+while(index66<nos){
+sects_rvas[index66]=*(int*)&sectable[(index66*40)+12];	
+index66++;
+}
+
+//Sorting Array VAs 
+sort(sects_rvas,&sects_rvas[nos]);
+
+file->seekp(position,ios::beg);
+//The logic is to get the wanted section number in order of section table then copy it
+if(whichsec>96||whichsec>nos||whichsec<0){
+return -1;
+}
+file->write((char*)sects_data,sizeof_sec);
+
+}
+
+///////////////////////////////////////////////////////////////////////
+
+
+/*int reloc_trans(ifstream* elf,ofstream* file){
+file.seek
+	
+}*/
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+
+
+int elf_writing(){
+if(1){
 string elf_name=name_store;
 if(no_ext==1){
 elf_name+=".elf";
@@ -24,7 +138,7 @@ elf_name.erase((name_store2.size()-4),5);
 elf_name+=".elf";
 }
 
-
+ifstream file(name_store2,ios::binary);
 ofstream elf(elf_name,ios::binary);
 
 
@@ -250,8 +364,9 @@ int p_align=0x1000;
 elf.write((char*)&p_align,4);
 //84 BYTES
 
+}
 int elf_filesize=elf.tellp();
-char padding2[4095-elf_filesize];
+char padding2[4096];
 short index55=0;
 while(index55<4095-elf_filesize){
 padding2[index55]=0;
@@ -262,53 +377,38 @@ elf.write(padding2,4095-elf_filesize);
 
 
 
+
+
+
+int index77=0;
+unsigned char *sect_data=new unsigned char[(double)file_size];
+int pos=elf_filesize;
+while(index77<nos){
+file.seekg(*(int*)&sections_table[((index77*40)+20)],ios::beg);
+file.read((char*)sect_data,*(int*)&sections_table[(index77*40)+16]);
+sections_placement(&elf,sect_data,*(int*)&sections_table[((index77*40)+16)],pos,sections_table, index77);
+pos+=*(int*)&sections_table[(index77*40)+16];
+//elf.write((char*)padding2,*(int*)&sections_table[(index77*40)+16]%512);
+index77++;
 }
 
 
-
-/////////////////////////
-//CODE
-
-int sectrva;
-int index33=0;
-char possibility=0;
-while(possibility!=100&&index33<=3840){
-if(possibility==10){
-possibility=0;
-}
-if((*(int*)&sections_table[index33]==*(int*)".tex"&&sections_table[(index33+4)]=='t')||*(int*)&sections_table[index33]==*(int*)"text"){
-possibility+=10;
-}
-if(*(int*)&sections_table[index33+36]==0x60000020){
-possibility+=100;	
-}
-index33+=40;
-}
-char no_text=0;
-if(possibility<100){
-no_text=1;
-}
-index33/=40;
-int index34=0;
-unsigned char* arr2=new unsigned char[(int)sections_table[index33+16]];
-file.seekg((int)sections_table[index33+5],ios::beg);
-file.read((char*)&arr2[index34],(int)sections_table[index33+4]);
-elf.write((char*)arr2,(int)sections_table[index33+4]);
+flag1=true;
 
 
-
-
-
-
-
-delete[] arr2;
-
-
-
+delete[] sect_data;
 elf.close();
 
+}
+return 0;
 }
 /***
 VERY IMPORTANT DUE TO COMPLEXITY OF MULTI PERMISSIONS OF EACH SEGMENT , 
 THE SINGLE PERMISSION FOR DIFFERENT SEGMENTS METHOD USED R+E+W WHICH WILL MAKE FILE SO MUCH EASY AND MORE PROBABLY TO GET HACKED!
 ***/
+
+
+
+
+
+//CREDITS TO ORIGINAL DEVELOPER ADAMS @Adamsplus1945
